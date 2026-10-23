@@ -93,7 +93,11 @@ const DEFAULT_PRODUCTS = [
 // App State
 class PosApp {
   constructor() {
-    this.products = [...DEFAULT_PRODUCTS];
+    this.universalPrice = parseFloat(localStorage.getItem('ferman_universal_price') || '200');
+    this.products = DEFAULT_PRODUCTS.map(p => ({
+      ...p,
+      price: this.universalPrice
+    }));
     this.cart = [];
     this.currentCategory = 'all';
     this.searchQuery = '';
@@ -925,12 +929,14 @@ class PosApp {
    * ----------------------------------------------------------- */
   syncSettingsInputs() {
     const s = this.storeSettings;
+    const priceEl = document.getElementById('setting-universal-price');
     const nameEl = document.getElementById('setting-store-name');
     const taglineEl = document.getElementById('setting-tagline');
     const phoneEl = document.getElementById('setting-phone');
     const footerEl = document.getElementById('setting-footer');
     const topStore = document.getElementById('topbar-store-name');
 
+    if (priceEl) priceEl.value = this.universalPrice || 200;
     if (nameEl) nameEl.value = s.name || '';
     if (taglineEl) taglineEl.value = s.tagline || '';
     if (phoneEl) phoneEl.value = s.phone || '';
@@ -939,6 +945,21 @@ class PosApp {
   }
 
   saveSettings() {
+    const priceInput = document.getElementById('setting-universal-price');
+    const newPrice = Math.max(1, parseFloat(priceInput?.value) || 200);
+    this.universalPrice = newPrice;
+    localStorage.setItem('ferman_universal_price', newPrice.toString());
+
+    // Update price across all products
+    this.products.forEach(p => {
+      p.price = newPrice;
+    });
+
+    // Update any items currently in cart
+    this.cart.forEach(item => {
+      item.price = newPrice;
+    });
+
     this.storeSettings = {
       name: document.getElementById('setting-store-name')?.value.trim() || 'Ferman Craft Fermentation Co.',
       tagline: document.getElementById('setting-tagline')?.value.trim() || 'Live, Small-Batch Kombucha & Ginger Beer',
@@ -948,10 +969,12 @@ class PosApp {
       gstin: '07BNPPK0957B2ZZ'
     };
 
-    localStorage.setItem('ferman_store_settings_v4', JSON.stringify(this.storeSettings));
+    localStorage.setItem('ferman_store_settings_v5', JSON.stringify(this.storeSettings));
     this.syncSettingsInputs();
+    this.renderProducts();
+    this.updateCartUi();
     this.playSound('click');
-    alert('Settings saved successfully!');
+    alert(`Settings saved! Drink price updated to ₹${newPrice} for all products.`);
   }
 
   /* -------------------------------------------------------------
