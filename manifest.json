@@ -1,0 +1,19 @@
+{
+  "name": "FerMan Craft POS",
+  "short_name": "FerMan POS",
+  "description": "Offline 58mm Thermal Billing & POS for FerMan Craft Fermentation Co.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d1520",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "./assets/logo.webp",
+      "sizes": "192x192 512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}

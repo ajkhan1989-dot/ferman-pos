@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0d1520">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FERMAN POS • SEZNIK Veer 58mm Billing</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/webp" href="assets/logo.webp">
+  <link rel="apple-touch-icon" href="assets/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- TOP HARDWARE STATUS & NAVIGATION BAR -->
+  <header class="topbar">
+    <div class="brand-section">
+      <img src="assets/logo.webp" alt="FerMan" class="brand-logo-img" onerror="this.src='assets/mascot.webp'">
+      <div class="brand-titles">
+        <h1 id="topbar-store-name">FERMAN BEVERAGES</h1>
+        <div class="badge-veer">⚡ SEZNIK VEER 58mm THERMAL POS</div>
+      </div>
+    </div>
+
+    <!-- Hardware Connect Status Pill -->
+    <div class="hardware-bar">
+      <div class="printer-status-pill" id="printer-status-badge" title="Click to connect Seznik Veer Bluetooth / USB">
+        <span class="status-dot" id="printer-status-dot"></span>
+        <span id="printer-status-text">Veer: Disconnected</span>
+      </div>
+
+      <button class="btn-icon" id="btn-quick-test-print" title="Instant Test Print on Seznik Veer">🖨️</button>
+      <button class="btn-icon" id="btn-toggle-sound" title="Toggle Sound Feedback">🔊</button>
+      <button class="btn-icon" id="btn-toggle-fullscreen" title="Fullscreen Mode">⛶</button>
+    </div>
+
+    <!-- View Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" data-view="pos">
+        <span>🛒</span> POS Billing
+      </button>
+      <button class="nav-tab-btn" data-view="history">
+        <span>📊</span> Sales & History
+      </button>
+      <button class="nav-tab-btn" data-view="settings">
+        <span>⚙️</span> Setup
+      </button>
+    </nav>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-container">
+
+    <!-- VIEW 1: POS BILLING & CHECKOUT -->
+    <section class="view-section active" id="view-pos">
+      
+      <!-- LEFT: PRODUCT CATALOG -->
+      <div class="pos-catalog-panel">
+        <div class="catalog-controls">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="catalog-search" class="search-input" placeholder="Search drink by name, flavour, or code (e.g. Mango, Original)...">
+          </div>
+
+          <div class="category-chips">
+            <button class="chip-btn active" data-category="all">All Drinks</button>
+            <button class="chip-btn" data-category="ginger">Ginger Beers 🔥</button>
+            <button class="chip-btn" data-category="kombucha">Raw Kombucha 🫧</button>
+          </div>
+
+          <button class="btn-custom-item" id="btn-open-custom-item">+ Custom Item</button>
+        </div>
+
+        <!-- Products Grid (Filled by JavaScript) -->
+        <div class="products-grid" id="products-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- RIGHT: CHECKOUT DRAWER & LIVE 58mm RECEIPT -->
+      <div class="pos-checkout-panel">
+        
+        <!-- Order Header -->
+        <div class="order-header">
+          <div class="order-title-box">
+            <h2>Current Order</h2>
+            <span class="order-orderid" id="display-order-id">#FER-1001</span>
+          </div>
+          <button class="btn-clear-cart" id="btn-clear-cart" title="Clear all items">Clear Cart</button>
+        </div>
+
+        <!-- Quick Customer Details -->
+        <div class="customer-quick-box">
+          <input type="text" id="cust-name-input" placeholder="Customer Name (optional)">
+          <input type="tel" id="cust-phone-input" placeholder="Phone (optional)">
+        </div>
+
+        <!-- Cart Line Items -->
+        <div class="cart-items-wrapper" id="cart-items-wrapper">
+          <div class="empty-cart-state" id="empty-cart-state">
+            <div class="empty-cart-icon">🛒</div>
+            <p><strong>Your cart is empty</strong></p>
+            <p>Tap any drink on the left to start billing</p>
+          </div>
+          <!-- Item rows inserted here -->
+        </div>
+
+        <!-- Cart Financial Summary -->
+        <div class="cart-summary-section">
+          <!-- Quick adjust bar (Discount & Tax) -->
+          <div class="quick-adjust-bar">
+            <select id="discount-select" class="quick-select">
+              <option value="0">No Discount</option>
+              <option value="5">5% Promo Discount</option>
+              <option value="10">10% Friend / Event Offer</option>
+              <option value="15">15% Bulk Discount</option>
+              <option value="20">20% Special Discount</option>
+            </select>
+
+            <select id="tax-select" class="quick-select" style="font-weight: 700; color: #047857; background: #ECFDF5; border-color: #A7F3D0; cursor: default;" title="Prices are inclusive of 5% GST">
+              <option value="5" selected>5% GST Included in MRP</option>
+            </select>
+          </div>
+
+          <div class="summary-row">
+            <span>Subtotal (<span id="summary-total-qty">0</span> items)</span>
+            <span id="summary-subtotal">₹0.00</span>
+          </div>
+          <div class="summary-row" id="summary-discount-row" style="display: none; color: #E05C0E;">
+            <span>Discount (<span id="summary-discount-pct">0</span>%)</span>
+            <span id="summary-discount-val">-₹0.00</span>
+          </div>
+          <div class="summary-row" id="summary-tax-row" style="display: flex; color: #047857; font-size: 0.76rem;">
+            <span>Incl. 5% GST (CGST+SGST):</span>
+            <span id="summary-tax-val">₹0.00</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>TOTAL TO PAY</span>
+            <span id="summary-grand-total">₹0.00</span>
+          </div>
+
+          <!-- Payment Methods Selector -->
+          <div class="payment-methods-selector">
+            <button class="pay-method-btn active" data-method="cash">
+              <span>💵</span> Cash
+            </button>
+            <button class="pay-method-btn" data-method="upi">
+              <span>📱</span> UPI
+            </button>
+          </div>
+
+          <!-- Cash Tender Calculator -->
+          <div class="cash-tender-box active" id="cash-tender-box">
+            <label style="font-size: 0.72rem; font-weight: 700; white-space: nowrap;">Tendered ₹</label>
+            <input type="number" id="cash-tendered-input" placeholder="Amount given (e.g. 500)">
+            <span class="change-display" id="cash-change-display">Change: ₹0</span>
+          </div>
+        </div>
+
+        <!-- Checkout Actions Box -->
+        <div class="checkout-actions-box">
+          <!-- Primary: Print to Seznik Veer -->
+          <button class="btn-print-seznik" id="btn-print-seznik">
+            <span>🖨️</span>
+            <span>PRINT TO SEZNIK VEER</span>
+            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: normal;">(F2)</span>
+          </button>
+
+          <!-- Secondary Actions -->
+          <div class="secondary-actions-row">
+            <button class="btn-secondary-action" id="btn-system-print" title="Use Standard 58mm Browser Spooler">
+              <span>📄</span> 58mm Print
+            </button>
+            <button class="btn-secondary-action" id="btn-view-preview" title="View 58mm Thermal Tape Slip">
+              <span>👁️</span> Preview
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: SALES ANALYTICS & ORDER HISTORY -->
+    <section class="view-section" id="view-history">
+      <div class="history-container">
+        
+        <!-- Metrics Cards -->
+        <div class="analytics-stat-grid">
+          <div class="stat-card">
+            <span class="stat-label">Today's Revenue</span>
+            <span class="stat-value" id="stat-today-revenue">₹0</span>
+            <span class="stat-sub" id="stat-order-count">0 orders today</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Bottles Sold</span>
+            <span class="stat-value" id="stat-bottles-sold">0</span>
+            <span class="stat-sub">Across all flavours</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">UPI vs Cash</span>
+            <span class="stat-value" id="stat-upi-revenue">₹0</span>
+            <span class="stat-sub" id="stat-cash-revenue">Cash: ₹0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Avg Order Value</span>
+            <span class="stat-value" id="stat-aov">₹0</span>
+            <span class="stat-sub">Per transaction</span>
+          </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-table-card">
+          <div class="history-toolbar">
+            <h3>Recent Transactions & Receipts</h3>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary-action" id="btn-export-csv">📥 Export CSV</button>
+              <button class="btn-secondary-action" id="btn-clear-history" style="color: var(--danger);">🗑️ Clear Log</button>
+            </div>
+          </div>
+
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Time</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Payment</th>
+                <th>Total</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 3: SETTINGS & HARDWARE CONFIGURATION -->
+    <section class="view-section" id="view-settings">
+      <div class="settings-container">
+        
+        <!-- Hardware Settings Card -->
+        <div class="settings-card">
+          <h3><span>🖨️</span> SEZNIK Veer Hardware Setup</h3>
+          
+          <div class="form-group">
+            <label>Printer Connection</label>
+            <div style="display: flex; gap: 10px; margin-top: 4px;">
+              <button class="btn-print-seznik" style="flex: 1; padding: 10px;" id="btn-pair-bluetooth">
+                <span>📶 Connect Bluetooth (BLE)</span>
+              </button>
+              <button class="btn-secondary-action" style="flex: 1; padding: 10px;" id="btn-connect-usb">
+                <span>🔌 Connect USB Serial</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Connection Status</label>
+            <div id="settings-printer-info" style="font-size: 0.85rem; padding: 10px; background: var(--surface-alt); border-radius: var(--radius-sm); font-family: var(--font-mono);">
+              Status: Disconnected<br>
+              Protocol: ESC/POS (58mm / 384 dots per line)<br>
+              Recommended: Web Bluetooth or Seznik Windows/RawBT driver
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Test Commands</label>
+            <button class="btn-secondary-action" id="btn-run-diag-test">
+              🖨️ Print Hardware Alignment & Self-Test Slip
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label>Paper Width Calibration</label>
+            <select id="printer-cpl" class="quick-select">
+              <option value="32" selected>58mm / 2-inch Standard (32 characters/line)</option>
+              <option value="30">58mm Compact Margins (30 characters/line)</option>
+              <option value="42">58mm Condensed Font (42 characters/line)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Store & Receipt Details Card -->
+        <div class="settings-card">
+          <h3><span>🏪</span> Store & Receipt Branding</h3>
+
+          <div class="form-group">
+            <label>Brand / Stall Name</label>
+            <input type="text" id="setting-store-name" value="Ferman Craft Fermentation Co.">
+          </div>
+
+          <div class="form-group">
+            <label>Tagline / Description</label>
+            <input type="text" id="setting-tagline" value="Live, Small-Batch Kombucha & Ginger Beer">
+          </div>
+
+          <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="text" id="setting-phone" value="+91 98999 52525">
+          </div>
+
+          <div class="form-group">
+            <label>Receipt Footer Message</label>
+            <input type="text" id="setting-footer" value="Keep Refrigerated 2°C-6°C • Instagram: @ferman.in">
+          </div>
+
+          <button class="btn-print-seznik" id="btn-save-settings" style="margin-top: 10px;">
+            💾 Save Settings
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+
+  <!-- MODAL: ADD CUSTOM ITEM -->
+  <div class="modal-overlay" id="modal-custom-item">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>+ Add Custom Item</h3>
+        <button class="btn-close-modal" id="btn-close-custom">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+        <div class="form-group">
+          <label>Item Name</label>
+          <input type="text" id="custom-item-name" placeholder="e.g. Tasting Flight / Cooler Bag / Merch">
+        </div>
+        <div class="form-group">
+          <label>Price (₹)</label>
+          <input type="number" id="custom-item-price" placeholder="e.g. 200">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="custom-item-cat">
+            <option value="ginger">Ginger Beer</option>
+            <option value="kombucha">Kombucha</option>
+          </select>
+        </div>
+        <button class="btn-print-seznik" id="btn-add-custom-confirm" style="margin-top: 8px;">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIVE 58mm THERMAL RECEIPT SLIP PREVIEW -->
+  <div class="modal-overlay" id="modal-thermal-preview">
+    <div class="modal-content" style="max-width: 360px; background: transparent; box-shadow: none; padding: 0;">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+        <button class="btn-close-modal" id="btn-close-preview" style="color: #FFF; font-size: 1.8rem;">✕</button>
+      </div>
+
+      <div class="thermal-preview-container">
+        <!-- The simulated 58mm paper slip -->
+        <div class="thermal-paper-tape" id="thermal-preview-tape">
+          <!-- Populated by JS -->
+        </div>
+
+        <div style="display: flex; gap: 8px; width: 100%; margin-top: 14px;">
+          <button class="btn-print-seznik" id="btn-preview-direct-print" style="flex: 1; padding: 10px;">
+            🖨️ Print Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEDICATED 58mm PRINTABLE THERMAL TICKET (For window.print() / Browser Spooler) -->
+  <div id="printable-thermal-ticket">
+    <!-- Populated by JavaScript immediately before printing -->
+  </div>
+
+  <!-- Scripts -->
+  <script src="printer-service.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          console.log('FerMan POS Offline Service Worker registered:', reg.scope);
+        }).catch((err) => {
+          console.warn('Service Worker registration skipped/failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
