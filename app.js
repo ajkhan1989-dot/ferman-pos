@@ -568,7 +568,8 @@ class PosApp {
         <span>Pay: <strong>${order.paymentMethod.toUpperCase()}</strong></span>
         <span>${order.timeFormatted}</span>
       </div>
-      ${order.customerName ? `<div style="font-size: 9px;">Cust: ${order.customerName} ${order.customerPhone ? '(' + order.customerPhone + ')' : ''}</div>` : ''}
+      ${order.customerName ? `<div style="font-size: 9px;">Cust: ${order.customerName}</div>` : ''}
+      ${order.customerPhone ? `<div style="font-size: 9px;">Phone: ${order.customerPhone}</div>` : ''}
 
       <div class="ticket-divider"></div>
 
@@ -748,6 +749,7 @@ class PosApp {
         <span>${order.timeFormatted}</span>
       </div>
       ${order.customerName ? `<div>Cust: ${order.customerName}</div>` : ''}
+      ${order.customerPhone ? `<div>Phone: ${order.customerPhone}</div>` : ''}
 
       <hr class="tape-divider">
 

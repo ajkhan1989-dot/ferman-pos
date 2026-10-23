@@ -210,7 +210,10 @@ class SeznikVeerPrinter {
     builder.twoColumns(`Bill No: ${orderData.orderId}`, `Date: ${orderData.dateFormatted}`);
     builder.twoColumns(`Time: ${orderData.timeFormatted}`, `Pay: ${orderData.paymentMethod.toUpperCase()}`);
     if (orderData.customerName) {
-      builder.textLine(`Customer: ${orderData.customerName}${orderData.customerPhone ? ' (' + orderData.customerPhone + ')' : ''}`);
+      builder.textLine(`Customer: ${orderData.customerName}`);
+    }
+    if (orderData.customerPhone) {
+      builder.textLine(`Phone: ${orderData.customerPhone}`);
     }
 
     builder.divider('-');
