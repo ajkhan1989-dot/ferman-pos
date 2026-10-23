@@ -408,6 +408,31 @@ class PosApp {
       const change = Math.max(0, tendered - calcs.grandTotal);
       changeDisplay.textContent = `Change: ₹${change.toFixed(0)}`;
     }
+
+    // Update Mobile Cart Badge and Floating Bar
+    const mobileBadge = document.getElementById('mobile-cart-badge');
+    const mobileFloatingBar = document.getElementById('mobile-floating-cart-bar');
+    const mobileFloatingCount = document.getElementById('mobile-floating-count');
+    const mobileFloatingTotal = document.getElementById('mobile-floating-total');
+
+    if (mobileBadge) {
+      mobileBadge.textContent = calcs.totalQuantity;
+      mobileBadge.style.display = calcs.totalQuantity > 0 ? 'inline-flex' : 'none';
+    }
+
+    if (mobileFloatingBar) {
+      if (calcs.totalQuantity > 0) {
+        mobileFloatingBar.classList.add('visible');
+        if (mobileFloatingCount) {
+          mobileFloatingCount.textContent = `${calcs.totalQuantity} Bottle${calcs.totalQuantity > 1 ? 's' : ''}`;
+        }
+        if (mobileFloatingTotal) {
+          mobileFloatingTotal.textContent = `₹${calcs.grandTotal.toFixed(0)}`;
+        }
+      } else {
+        mobileFloatingBar.classList.remove('visible');
+      }
+    }
   }
 
   updateOrderSeqDisplay() {
@@ -795,6 +820,31 @@ class PosApp {
     if (custPhone) custPhone.value = '';
 
     this.clearCart();
+    this.switchMobilePosView('catalog');
+  }
+
+  /* -------------------------------------------------------------
+   * MOBILE VIEW SWITCHER (Catalog vs Checkout on Android)
+   * ----------------------------------------------------------- */
+  switchMobilePosView(view) {
+    const catalogPanel = document.querySelector('.pos-catalog-panel');
+    const checkoutPanel = document.querySelector('.pos-checkout-panel');
+    const tabCatalog = document.getElementById('tab-mobile-catalog');
+    const tabCart = document.getElementById('tab-mobile-cart');
+
+    if (view === 'cart') {
+      catalogPanel?.classList.add('mobile-hidden');
+      checkoutPanel?.classList.remove('mobile-hidden');
+      tabCatalog?.classList.remove('active');
+      tabCart?.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      catalogPanel?.classList.remove('mobile-hidden');
+      checkoutPanel?.classList.add('mobile-hidden');
+      tabCatalog?.classList.add('active');
+      tabCart?.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   /* -------------------------------------------------------------
@@ -914,8 +964,15 @@ class PosApp {
         btn.classList.add('active');
         const targetView = document.getElementById(`view-${btn.dataset.view}`);
         if (targetView) targetView.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
+
+    // Mobile POS View Switcher
+    document.getElementById('tab-mobile-catalog')?.addEventListener('click', () => this.switchMobilePosView('catalog'));
+    document.getElementById('tab-mobile-cart')?.addEventListener('click', () => this.switchMobilePosView('cart'));
+    document.getElementById('btn-mobile-view-bill')?.addEventListener('click', () => this.switchMobilePosView('cart'));
+    document.getElementById('btn-mobile-back-catalog')?.addEventListener('click', () => this.switchMobilePosView('catalog'));
 
     // Category chips
     document.querySelectorAll('.chip-btn').forEach(chip => {

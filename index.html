@@ -61,12 +61,22 @@
     <!-- VIEW 1: POS BILLING & CHECKOUT -->
     <section class="view-section active" id="view-pos">
       
+      <!-- MOBILE VIEW SWITCHER (Visible on screens <= 900px) -->
+      <div class="mobile-pos-nav" id="mobile-pos-nav">
+        <button class="mobile-pos-tab active" id="tab-mobile-catalog" type="button">
+          <span>🍹</span> Drinks Menu
+        </button>
+        <button class="mobile-pos-tab" id="tab-mobile-cart" type="button">
+          <span>🧾</span> Current Bill <span class="mobile-cart-badge" id="mobile-cart-badge" style="display: none;">0</span>
+        </button>
+      </div>
+
       <!-- LEFT: PRODUCT CATALOG -->
       <div class="pos-catalog-panel">
         <div class="catalog-controls">
           <div class="search-input-wrapper">
             <span class="search-icon">🔍</span>
-            <input type="text" id="catalog-search" class="search-input" placeholder="Search drink by name, flavour, or code (e.g. Mango, Original)...">
+            <input type="text" id="catalog-search" class="search-input" placeholder="Search drink by name or flavour...">
           </div>
 
           <div class="category-chips">
@@ -85,8 +95,13 @@
       </div>
 
       <!-- RIGHT: CHECKOUT DRAWER & LIVE 58mm RECEIPT -->
-      <div class="pos-checkout-panel">
+      <div class="pos-checkout-panel mobile-hidden">
         
+        <!-- Mobile Return Button -->
+        <button class="btn-mobile-back" id="btn-mobile-back-catalog" type="button">
+          ← Back to Drinks Menu
+        </button>
+
         <!-- Order Header -->
         <div class="order-header">
           <div class="order-title-box">
@@ -184,6 +199,18 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- MOBILE FLOATING CART BAR (Always accessible on Android) -->
+      <div class="mobile-floating-cart-bar" id="mobile-floating-cart-bar">
+        <div class="mobile-floating-cart-info">
+          <div class="mobile-floating-cart-count" id="mobile-floating-count">0 Bottles</div>
+          <div class="mobile-floating-cart-total" id="mobile-floating-total">₹0</div>
+        </div>
+        <button class="btn-mobile-view-bill" id="btn-mobile-view-bill" type="button">
+          <span>Review Bill & Print</span>
+          <span class="arrow">➔</span>
+        </button>
       </div>
 
     </section>
