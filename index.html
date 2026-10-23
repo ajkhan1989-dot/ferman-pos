@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <script src="qrcode.min.js"></script>
 </head>
 <body>
@@ -415,15 +415,26 @@
   </div>
 
   <!-- Scripts -->
-  <script src="printer-service.js"></script>
-  <script src="app.js"></script>
+  <script src="printer-service.js?v=3"></script>
+  <script src="app.js?v=3"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=3').then((reg) => {
           console.log('FerMan POS Offline Service Worker registered:', reg.scope);
+          // Check for updates immediately
+          reg.update();
         }).catch((err) => {
           console.warn('Service Worker registration skipped/failed:', err);
+        });
+
+        // Auto-refresh when new service worker takes over
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
         });
       });
     }
