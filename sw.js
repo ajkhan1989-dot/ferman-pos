@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferman-pos-v3';
+const CACHE_NAME = 'ferman-pos-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,7 +6,13 @@ const ASSETS_TO_CACHE = [
   './app.js?v=3',
   './printer-service.js?v=3',
   './qrcode.min.js',
-  './manifest.json',
+  './manifest.json?v=4',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './assets/icon-maskable-192.png',
+  './assets/icon-maskable-512.png',
+  './assets/apple-touch-icon.png',
+  './assets/favicon.png',
   './assets/logo.webp',
   './assets/mascot.webp',
   './assets/ginger-bottle.webp',
