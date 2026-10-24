@@ -429,21 +429,13 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3').then((reg) => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then((reg) => {
           console.log('FerMan POS Offline Service Worker registered:', reg.scope);
-          // Check for updates immediately
-          reg.update();
-        }).catch((err) => {
-          console.warn('Service Worker registration skipped/failed:', err);
-        });
-
-        // Auto-refresh when new service worker takes over
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (!refreshing) {
-            refreshing = true;
-            window.location.reload();
+          if (navigator.onLine && reg.update) {
+            reg.update();
           }
+        }).catch((err) => {
+          console.warn('Service Worker registration error:', err);
         });
       });
     }
